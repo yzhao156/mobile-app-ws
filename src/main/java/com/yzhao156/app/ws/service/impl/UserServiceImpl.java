@@ -94,6 +94,7 @@ public class UserServiceImpl implements UserService{
 		
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), 
 //				userEntity.getEmailVerificationStatus(),
+				
 				true,
 				true, true,
 				true, new ArrayList<>());
