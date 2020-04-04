@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -19,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yzhao156.app.ws.exceptions.UserServiceException;
+import com.yzhao156.app.ws.service.AddressService;
 import com.yzhao156.app.ws.service.UserService;
+import com.yzhao156.app.ws.shared.dto.AddressDTO;
 import com.yzhao156.app.ws.shared.dto.UserDto;
 import com.yzhao156.app.ws.ui.model.request.UserDetailsRequestModel;
+import com.yzhao156.app.ws.ui.model.response.AddressesRest;
 import com.yzhao156.app.ws.ui.model.response.ErrorMessages;
 import com.yzhao156.app.ws.ui.model.response.OperationStatusModel;
 import com.yzhao156.app.ws.ui.model.response.RequestOperationStatus;
@@ -34,6 +38,12 @@ public class UserController {
 	
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AddressService addressService;
+	
+	@Autowired
+	AddressService addressesService;
 	
 	@CrossOrigin(origins="*")
 	@GetMapping(path="/{id}",
@@ -113,4 +123,60 @@ public class UserController {
 		}
 		return returnValue;
 	}
+	
+	
+	//http://localhost:8080/mobile-app-ws/users/ajsdoasidjoasidjid/addresses
+	@CrossOrigin(origins="*")
+	@GetMapping(path="/{id}/addresses",
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE } )
+	public List<AddressesRest> getUserAddresses(@PathVariable String id) {
+		List<AddressesRest> returnValue = new ArrayList<>();
+		
+		List<AddressDTO> addressesDTO = addressesService.getAddresses(id);
+		
+		java.lang.reflect.Type listType = new TypeToken<List<AddressesRest>>() {}.getType();
+		ModelMapper modelMapper = new ModelMapper();
+		returnValue = modelMapper.map(addressesDTO, listType);
+		
+		return returnValue;
+	}
+	
+	
+	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_JSON_VALUE,
+			MediaType.APPLICATION_XML_VALUE, "application/hal+json" })
+	public AddressesRest getUserAddress(@PathVariable String userId, @PathVariable String addressId) {
+
+		AddressDTO addressesDto = addressService.getAddress(addressId);
+
+		ModelMapper modelMapper = new ModelMapper();
+
+		AddressesRest addressesRestModel = modelMapper.map(addressesDto, AddressesRest.class);
+
+		return modelMapper.map(addressesDto, AddressesRest.class);
+	}
+	
+	 /*
+     * http://localhost:8080/mobile-app-ws/users/email-verification?token=sdfsdf
+     * */
+    @GetMapping(path = "/email-verification", produces = { MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE })
+    public OperationStatusModel verifyEmailToken(@RequestParam(value = "token") String token) {
+
+        OperationStatusModel returnValue = new OperationStatusModel();
+        returnValue.setOperationName(RequestOperationName.VERIFY_EMAIL.name());
+        
+        boolean isVerified = userService.verifyEmailToken(token);
+        
+        if(isVerified)
+        {
+            returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+        } else {
+            returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
+        }
+
+        return returnValue;
+    }
+	
+	
+	
 }
