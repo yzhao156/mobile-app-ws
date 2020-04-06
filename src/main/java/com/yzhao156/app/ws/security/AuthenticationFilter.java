@@ -72,7 +72,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .compact();
         UserService userService = (UserService)SpringApplicationContext.getBean("userServiceImpl");
         UserDto userDto = userService.getUser(userName);
-        
+//        res.addHeader("Access-Control-Allow-Origin", "*");//cross domain request/CORS
+        res.setContentType("application/json;charset=utf-8"); 
+        res.setCharacterEncoding("utf-8"); 
+        res.getWriter().print("{\""+SecurityConstants.HEADER_STRING+"\""+":\""+SecurityConstants.TOKEN_PREFIX + token+"\","+"\"UserID\":\""+userDto.getUserId()+"\"}");
         res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
         res.addHeader("UserID", userDto.getUserId());
 

@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService{
 //		BeanUtils.copyProperties(storedUserDetails, returnValue);
 		
 		// Send an email message to user to verify their email address
-		new AmazonSES().verifyEmail(returnValue);
+//		new AmazonSES().verifyEmail(returnValue);
 
 		return returnValue;
 	}
@@ -112,6 +112,7 @@ public class UserServiceImpl implements UserService{
 			throw new UsernameNotFoundException("User with ID: " + userId + " not found");
 
 		BeanUtils.copyProperties(userEntity, returnValue);
+//		returnValue.setAddresses(null);
 
 		return returnValue;
 	}
